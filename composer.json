@@ -1,0 +1,15 @@
+{
+    "name": "dglushakov/trassir",
+    "authors": [
+        {
+            "name": "Denis Glushakov",
+            "email": "denis.glushakov@bk.ru"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "dglushakov\\Trassir\\": "src/"
+        }
+    }
+}

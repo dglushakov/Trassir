@@ -1,0 +1,11 @@
+filter:
+  paths: [src/*]
+  excluded_paths: [vendor/*, tests/*, example/*]
+
+build:
+  environment:
+    php:
+      version: 7.1
+
+checks:
+  php: true
