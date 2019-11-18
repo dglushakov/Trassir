@@ -45,7 +45,7 @@ class TrassirNVR implements TrassirCommandInterface
 
     public function login(): ?string
     {
-        if(isset($this->sid) && ($this->sid!==false) && isset($this->sidExpiresAt) && ($this->sidExpiresAt> new \DateTime()))
+        if(($this->sid!==false) && $this->sidExpiresAt> new \DateTime())
         {
             return $this->sid;
         }
@@ -84,7 +84,7 @@ class TrassirNVR implements TrassirCommandInterface
 
     public function getObjectsTree(): ?array
     {
-        $objects=[];
+        if($this->isHostOnline()){
         $url = 'https://' . trim($this->ip) . ':8080/objects/?password=' . trim($this->passwordSDK);;
         $responseJson_str = file_get_contents($url, NULL, $this->stream_context);
         $comment_position = strripos($responseJson_str, '/*');    //отрезаем комментарий в конце ответа сервера
@@ -97,6 +97,9 @@ class TrassirNVR implements TrassirCommandInterface
         }
 
         return $objects;
+        } else {
+            return null;
+        }
     }
 
 }
