@@ -1,6 +1,6 @@
 <?php
 
-namespace dglushakov\Trassir;
+namespace dglushakov\Trassir\TrassirChannel;
 
 interface TrassirChannelInterface {
 

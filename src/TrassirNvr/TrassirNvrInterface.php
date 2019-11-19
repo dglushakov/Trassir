@@ -1,7 +1,7 @@
 <?php
 
 
-namespace dglushakov\Trassir;
+namespace dglushakov\Trassir\TrassirNvr;
 
 Interface TrassirNvrInterface {
 

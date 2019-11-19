@@ -1,8 +1,9 @@
 <?php
 
-namespace dglushakov\Trassir;
+namespace dglushakov\Trassir\TrassirNvr;
 
-use dglushakov\Trassir\TrassirNvrInterface;
+
+use dglushakov\Trassir\TrassirChannel\TrassirChannel;
 
 class TrassirNVR implements TrassirNvrInterface
 

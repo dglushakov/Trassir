@@ -2,7 +2,7 @@
 
 namespace dglushakov\Trassir\MediaGrabber;
 
-use dglushakov\Trassir\TrassirNvrInterface;
+use dglushakov\Trassir\TrassirNvr\TrassirNvrInterface;
 
 interface MediaGrabberInterface {
     public static function getScreenShotUrl(TrassirNvrInterface $trassirNvr, $channel, \DateTime $timestamp): ?string;

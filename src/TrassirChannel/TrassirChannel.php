@@ -1,7 +1,7 @@
 <?php
 
 
-namespace dglushakov\Trassir;
+namespace dglushakov\Trassir\TrassirChannel;
 
 
 class TrassirChannel implements TrassirChannelInterface

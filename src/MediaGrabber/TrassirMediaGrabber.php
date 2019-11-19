@@ -3,7 +3,7 @@
 
 namespace dglushakov\Trassir\MediaGrabber;
 
-use dglushakov\Trassir\TrassirNvrInterface;
+use dglushakov\Trassir\TrassirNvr\TrassirNvrInterface;
 
 class TrassirMediaGrabber implements MediaGrabberInterface
 {
