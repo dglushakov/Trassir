@@ -6,10 +6,13 @@
             "email": "denis.glushakov@bk.ru"
         }
     ],
-    "require": {},
+    "require": {
+      "ext-json": "*"
+    },
     "autoload": {
         "psr-4": {
-            "dglushakov\\Trassir\\": "src/"
+            "dglushakov\\Trassir\\": "src/",
+            "dglushakov\\Trassir\\MediaGrabber\\": "src/Mediagrabber/"
         }
     }
 }

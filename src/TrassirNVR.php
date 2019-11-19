@@ -2,9 +2,28 @@
 
 namespace dglushakov\Trassir;
 
-class TrassirNVR implements TrassirCommandInterface
+use dglushakov\Trassir\TrassirNvrInterface;
+
+class TrassirNVR implements TrassirNvrInterface
+
 {
-    private $ip, $userName, $password, $passwordSDK, $sid, $sidExpiresAt, $stream_context, $lastError;
+    private
+        $ip,
+        $userName,
+        $password,
+        $passwordSDK,
+        $sid,
+        $sidExpiresAt,
+        $stream_context,
+        $lastError,
+        $channels;
+
+    public function getIp(){
+        return $this->ip;
+    }
+    public function getSid(){
+        return $this->sid;
+    }
 
     /**
      * @return mixed
@@ -33,6 +52,7 @@ class TrassirNVR implements TrassirCommandInterface
         } else {
             throw new \Exception("Not valid IP");
         }
+
         $this->userName = $userName;
         $this->password = $password;
         $this->passwordSDK = $passwordSDK;
@@ -43,7 +63,7 @@ class TrassirNVR implements TrassirCommandInterface
             'verify_depth' => 0]]);
     }
 
-    public function login(): ?string
+    private function login(): ?string
     {
         if(($this->sid!==false) && $this->sidExpiresAt> new \DateTime())
         {
@@ -100,6 +120,39 @@ class TrassirNVR implements TrassirCommandInterface
         } else {
             return null;
         }
+    }
+
+    public function getNvrHealth(): ?array
+    {
+        if(!$this->login()){
+            return null;
+        }
+        $url = 'https://' . trim($this->ip) . ':8080/health?sid=' . trim($this->sid);
+        $responseJson_str = file_get_contents($url, null, $this->stream_context);
+        $comment_position = strripos($responseJson_str, '/*');    //отрезаем комментарий в конце ответа сервера
+        $responseJson_str = substr($responseJson_str, 0, $comment_position);
+        $server_health = json_decode($responseJson_str, true);
+
+        return $server_health;
+    }
+
+    public function getChannels(): ?array
+    {
+        if(!$this->login()){
+            return null;
+        }
+        $url = 'https://' . trim($this->ip) . ':8080/channels?sid=' . trim($this->sid);
+        $responseJson_str = file_get_contents($url, null, $this->stream_context);
+        $comment_position = strripos($responseJson_str, '/*');    //отрезаем комментарий в конце ответа сервера
+        $responseJson_str = substr($responseJson_str, 0, $comment_position);
+        $channels = json_decode($responseJson_str, true);
+
+        foreach ($channels['channels'] as $channel) {
+            $NvrChannel = new TrassirChannel($channel['guid'], $channel['name'], $channel['rights'], $channel['codec']);
+            $this->channels[] = $NvrChannel;
+        }
+
+        return $this->channels;
     }
 
 }
