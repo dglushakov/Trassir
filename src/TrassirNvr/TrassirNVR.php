@@ -14,7 +14,9 @@ class TrassirNVR implements TrassirNvrInterface
         $password,
         $passwordSDK,
         $sid,
+        $sidSDK,
         $sidExpiresAt,
+        $sidSDKExpiresAt,
         $stream_context,
         $lastError,
         $channels;
@@ -24,6 +26,10 @@ class TrassirNVR implements TrassirNvrInterface
     }
     public function getSid(){
         return $this->sid;
+    }
+
+    public function getStreamContext(){
+        return $this->stream_context;
     }
 
     /**
@@ -64,29 +70,68 @@ class TrassirNVR implements TrassirNvrInterface
             'verify_depth' => 0]]);
     }
 
+
+    private function sidIsValid(){
+        $result = false;
+        if(($this->sid!==false) && $this->sidExpiresAt> new \DateTime()){
+            $result = true;
+        }
+        return $result;
+    }
+
+    private function sidSdkIsValid(){
+        $result = false;
+        if(($this->sidSDK!==false) && $this->sidSDKExpiresAt> new \DateTime()){
+            $result = true;
+        }
+        return $result;
+    }
+
+
     private function login(): ?string
     {
-        if(($this->sid!==false) && $this->sidExpiresAt> new \DateTime())
+        $result = false;
+        if($this->sidIsValid() && $this->sidSdkIsValid())
         {
-            return $this->sid;
+            return true;
         }
 
         $this->sid = false;
-        $url = 'https://' . trim($this->ip) . ':8080/login?username=' . trim($this->userName) . '&password=' . trim($this->password);
-        if(false ===($responseJson_str = @file_get_contents($url, NULL, $this->stream_context))){
-            $this->lastError = $this->sid= "Host " . $this->ip . " is offline";
-            return $this->sid;
+        $this->sidSDK = false;
+
+        $sidRequestUrl = 'https://' . trim($this->ip) . ':8080/login?username=' . trim($this->userName) . '&password=' . trim($this->password);
+        if(false ===($responseJson_str = @file_get_contents($sidRequestUrl, NULL, $this->stream_context))){
+            $this->lastError = "Host " . $this->ip . " is offline";
+            return false;
         }
-        $server_auth = json_decode($responseJson_str, true); //переводим JSON в массив
+        $server_auth = json_decode($responseJson_str, true);
         if ($server_auth['success'] == 1) {
             $this->sid = $server_auth['sid'];
             $this->sidExpiresAt = new \DateTime();
             $this->sidExpiresAt->modify('+15 minutes');
         } else {
-             $this->lastError= "Wrong Username or Password";
+             $this->lastError= "Wrong Username or Password. Cant get sid";
         }
 
-        return $this->sid;
+        $sidSdkRequestUrl = 'https://' . trim($this->ip) . ':8080/login?password=' . trim($this->passwordSDK);
+        if(false ===($responseJson_str = @file_get_contents($sidSdkRequestUrl, NULL, $this->stream_context))){
+            $this->lastError = "Host " . $this->ip . " is offline";
+            return false;
+        }
+        $server_auth = json_decode($responseJson_str, true);
+        if ($server_auth['success'] == 1) {
+            $this->sidSDK = $server_auth['sid'];
+            $this->sidSDKExpiresAt = new \DateTime();
+            $this->sidSDKExpiresAt->modify('+15 minutes');
+        } else {
+            $this->lastError= "Wrong Username or Password. Cant get SDK password";
+        }
+
+        if($this->sid!=false && $this->sidSDK!=false) {
+            $result = true;
+        }
+
+        return $result;
     }
 
     private function isHostOnline(): bool
@@ -105,8 +150,8 @@ class TrassirNVR implements TrassirNvrInterface
 
     public function getObjectsTree(): ?array
     {
-        if($this->isHostOnline()){
-        $url = 'https://' . trim($this->ip) . ':8080/objects/?password=' . trim($this->passwordSDK);;
+        if($this->isHostOnline() && $this->login()){
+        $url = 'https://' . trim($this->ip) . ':8080/objects/?sid=' . trim($this->sidSDK);;
         $responseJson_str = file_get_contents($url, NULL, $this->stream_context);
         $comment_position = strripos($responseJson_str, '/*');    //отрезаем комментарий в конце ответа сервера
         $responseJson_str = substr($responseJson_str, 0, $comment_position);
