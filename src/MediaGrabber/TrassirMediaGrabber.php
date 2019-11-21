@@ -31,19 +31,10 @@ class TrassirMediaGrabber implements MediaGrabberInterface
     }
 
     public static function getVideoStreamUrl(TrassirNvrInterface $trassirNvr, $channelNumber=0, \DateTime $timestamp = null){
-        var_dump($timestamp);
-        $channels = $trassirNvr->getChannels();
-
-        //https://192.18.1.20:8080/get_video?channel=CKq5LLiO&container=mjpeg&quality=80&stream=main&framerate=1000&sid=WP6IRcrQ
-        //https://10.17.26.33:8080/get_video?channel=XlA6pfs6&container=mjpeg&quality=80&stream=mainframerate=1000&sid=jLsivwZ1
-
         $videoToken = self::getVideoToken($trassirNvr, $channelNumber, $timestamp);
-        var_dump($videoToken);
-
 
         $videoStreamUrl = 'http://' . trim($trassirNvr->getIp()) . ':555/'.$videoToken;
 
-       // var_dump($videoStreamUrl);
         return  $videoStreamUrl;
 
     }
@@ -54,7 +45,7 @@ class TrassirMediaGrabber implements MediaGrabberInterface
         $channels = $trassirNvr->getChannels();
         $tokenUrl = 'https://' . trim($trassirNvr->getIp()) . ':8080/get_video?channel='
             .$channels[$channelNumber]->getGuid()
-            .'&container=jpeg'
+            .'&container=mjpeg'
             .'&quality=80'
             .'&stream=main'
             .'&framerate=1000'

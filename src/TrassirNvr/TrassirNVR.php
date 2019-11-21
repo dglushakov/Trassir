@@ -201,4 +201,31 @@ class TrassirNVR implements TrassirNvrInterface
         return $this->channels;
     }
 
+    public function getServerSettings(): ?array {
+        if(!$this->login()){
+            return null;
+        }
+        $serverSettings=[];
+        $url = 'https://' . trim($this->ip) . ':8080/settings/?sid=' . trim($this->sid);
+        $responseJson_str = file_get_contents($url, null, $this->stream_context);
+        $comment_position = strripos($responseJson_str, '/*');    //отрезаем комментарий в конце ответа сервера
+        $responseJson_str = substr($responseJson_str, 0, $comment_position);
+        $serverSettings = json_decode($responseJson_str, true);
+        return $serverSettings;
+    }
+
+    public function getUsers() {
+        if(!$this->login()){
+            return null;
+        }
+        $Users=[];
+        $url = 'https://' . trim($this->ip) . ':8080/settings/users/?sid=' . trim($this->sid);
+        $responseJson_str = file_get_contents($url, null, $this->stream_context);
+        $comment_position = strripos($responseJson_str, '/*');    //отрезаем комментарий в конце ответа сервера
+        $responseJson_str = substr($responseJson_str, 0, $comment_position);
+        $Users = json_decode($responseJson_str, true);
+        $this->trassirUsers = $Users['subdirs'];
+        return $this->trassirUsers;
+    }
+
 }
