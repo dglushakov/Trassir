@@ -35,7 +35,6 @@ class TrassirRequest
     }
 
     public function execute(){ //TODO проверка онлайна сервера
-        $response = false;
         if(!$this->trassirNvr->login()){
             return null;
         }
