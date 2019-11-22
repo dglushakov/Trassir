@@ -8,13 +8,13 @@ class TrassirRequest
 {
     private $trassirNvr;
     private $requestType;
-    private  $inputData;
+    private  $params;
 
-    public function __construct(TrassirNvrInterface $trassirNvr, string $requestType, $inputData = null)
+    public function __construct(TrassirNvrInterface $trassirNvr, string $requestType, $params = [])
     {
         $this->trassirNvr = $trassirNvr;
         $this->requestType = $requestType;
-        $this->inputData = $inputData;
+        $this->params = $params;
     }
     public static function getRequestTypes(){
         $types=[
@@ -57,17 +57,17 @@ class TrassirRequest
                 $requstUrl .='/settings/users/?sid=' . trim($this->trassirNvr->getSid());
                 break;
             case "USER_OR_GROUP":
-                $requstUrl .='/settings/users/'.$this->inputData.'/?sid=' . trim($this->trassirNvr->getSid());
+                $requstUrl .='/settings/users/'.$this->params['userGuid'].'/?sid=' . trim($this->trassirNvr->getSid());
                 break;
             case "USER_NAME":
-                $requstUrl .='/settings/users/'.$this->inputData.'/name?sid=' . trim($this->trassirNvr->getSid());
+                $requstUrl .='/settings/users/'.$this->params['userGuid'].'/name?sid=' . trim($this->trassirNvr->getSid());
                 break;
             case "USER_GROUP":
-                $requstUrl .='/settings/users/'.$this->inputData.'/group?sid=' . trim($this->trassirNvr->getSid());
+                $requstUrl .='/settings/users/'.$this->params['userGuid'].'/group?sid=' . trim($this->trassirNvr->getSid());
                 break;
 
             case "CREATE_GROUP_PREPARE":
-                $requstUrl .='/settings/users/user_add/new_group_name='.$this->inputData.'?sid=' . trim($this->trassirNvr->getSid());
+                $requstUrl .='/settings/users/user_add/new_group_name='.$this->params['groupName'].'?sid=' . trim($this->trassirNvr->getSid());
                 break;
             case "CREATE_GROUP_EXECUTE":
                 $requstUrl .='/settings/users/user_add/create_group_now=1?sid=' . trim($this->trassirNvr->getSid());

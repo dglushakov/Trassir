@@ -172,7 +172,9 @@ class TrassirNVR implements TrassirNvrInterface
     public function getChannels(): ?array
     {
         $request = new TrassirRequest($this, 'CHANNELS_LIST');
-        return $request->execute();
+        $result = $request->execute();
+        $channels = $result['channels'];
+        return $channels;
     }
 
     public function getServerSettings(): ?array

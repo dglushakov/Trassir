@@ -22,8 +22,8 @@ class TrassirMediaGrabber implements MediaGrabberInterface
             return false;
         }
 
-        $screenShotUrl = 'https://' . trim($trassirNvr->getIp()) . ':8080/screenshot/'
-            .$channels[$channelNumber]->getGuid()
+        $screenShotUrl = 'https://' . trim($trassirNvr->getIp()) . ':8080/screenshot/' //TODO перенести в трассирреквест
+            .$channels[$channelNumber]['guid']
             .'?timestamp='.$timestamp
             .'&sid=' . trim($trassirNvr->getSid());
 

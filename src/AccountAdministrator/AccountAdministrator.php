@@ -31,15 +31,15 @@ class AccountAdministrator implements AccountAdministratorInterface
         $userDetails=[];
         $userDetails['guid'] =$userGuid;
 
-        $request = new TrassirRequest($this->trassirNvr, 'USER_OR_GROUP', $userGuid);
+        $request = new TrassirRequest($this->trassirNvr, 'USER_OR_GROUP', ['userGuid'=>$userGuid]);
         $userGroupData = $request->execute();
         $userDetails ['type'] = $userGroupData['type'];
 
-        $request = new TrassirRequest($this->trassirNvr, 'USER_NAME', $userGuid);
+        $request = new TrassirRequest($this->trassirNvr, 'USER_NAME', ['userGuid'=>$userGuid]);
         $userNameData = $request->execute();
         $userDetails['name'] = $userNameData['value'];
 
-        $request = new TrassirRequest($this->trassirNvr, 'USER_GROUP', $userGuid);
+        $request = new TrassirRequest($this->trassirNvr, 'USER_GROUP', ['userGuid'=>$userGuid]);
         $userGroupData = $request->execute();
         $userDetails ['parentGroupGuid'] = $userGroupData['value'];
         return $userDetails;
@@ -62,7 +62,7 @@ class AccountAdministrator implements AccountAdministratorInterface
     public function createGroup(string $groupName) { //TODO проверять нет ли уже такой группы
 
         if(!$this->isGroupExists($groupName)) {
-            $request = new TrassirRequest($this->trassirNvr, 'CREATE_GROUP_PREPARE', $groupName);
+            $request = new TrassirRequest($this->trassirNvr, 'CREATE_GROUP_PREPARE', ['groupName'=>$groupName]);
             $request->execute();
 
             $request = new TrassirRequest($this->trassirNvr, 'CREATE_GROUP_EXECUTE');
