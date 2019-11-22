@@ -28,6 +28,7 @@ class AccountAdministrator implements AccountAdministratorInterface
 
     private function getUserDetails(string $userGuid) :?array
     {
+        $userDetails=[];
         $userDetails['guid'] =$userGuid;
 
         $request = new TrassirRequest($this->trassirNvr, 'USER_OR_GROUP', $userGuid);
@@ -62,10 +63,10 @@ class AccountAdministrator implements AccountAdministratorInterface
 
         if(!$this->isGroupExists($groupName)) {
             $request = new TrassirRequest($this->trassirNvr, 'CREATE_GROUP_PREPARE', $groupName);
-            var_dump($request->execute());
+            $request->execute();
 
             $request = new TrassirRequest($this->trassirNvr, 'CREATE_GROUP_EXECUTE');
-            var_dump($request->execute());
+            $request->execute();
         } else {
             $this->lastError = "Group {$groupName} already exists";
             return false;
