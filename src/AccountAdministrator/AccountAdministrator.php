@@ -11,6 +11,7 @@ class AccountAdministrator implements AccountAdministratorInterface
 {
     private $trassirNvr;
     private $lastError;
+    private $users=[];
 
     /**
      * @return mixed
@@ -50,6 +51,9 @@ class AccountAdministrator implements AccountAdministratorInterface
 
     public function getUsers()
     {
+        if (!empty($this->users)) {
+            return $this->users;
+        }
         $users = [];
         $request = new TrassirRequest($this->trassirNvr, 'USERS');
         $res = $request->execute();
@@ -59,7 +63,8 @@ class AccountAdministrator implements AccountAdministratorInterface
             $users[] = $userData;
         }
 
-        return $users;
+        $this->users = $users;
+        return $this->users;
     }
 
     public function createGroup(string $groupName)
@@ -79,6 +84,26 @@ class AccountAdministrator implements AccountAdministratorInterface
         return true;
     }
 
+    public function deleteUser(string $userName) {
+        if(!$this->isUserExists($userName)) {
+            return false;
+        }
+
+        $userGuid = $this->getUserGuidByName($userName);
+        return $this->deleteUserOrGroup($userGuid);
+    }
+
+    private function isUserExists(string $userName){
+        $users = $this->getUsers();
+        foreach ($users as $user) {
+            if ($user['type'] == 'User' && $user['name'] == $userName) {
+                return true;
+            }
+        }
+        $this->lastError = "User {$userName} does not exist";
+        return false;
+    }
+
     public function deleteGroup(string $groupName) {
         if(!$this->isGroupExists($groupName)) {
             return false;
@@ -96,6 +121,7 @@ class AccountAdministrator implements AccountAdministratorInterface
         $request = new TrassirRequest($this->trassirNvr, 'DELETE_USER', ['userGuid' => $guid]);
         $result = $request->execute();
 
+        $response = $result['success'];
         return $result;
     }
 
@@ -145,6 +171,26 @@ class AccountAdministrator implements AccountAdministratorInterface
         }
 
         return $groupGuid;
+    }
+
+
+    private function getUserGuidByName(string $userName) :?string {
+        $numberOfUsersWithSameName = 0;
+        $userGuid = false;
+        $users = $this->getUsers();
+        foreach ($users as $user) {
+            if ($user['type'] == 'User' && $user['name'] == $userName) {
+                $userGuid = $user['guid'];
+                $numberOfUsersWithSameName++;
+            }
+        }
+
+        if (!$numberOfUsersWithSameName===1) {
+            $userGuid = false;
+            $this->lastError = "Nvr have {$numberOfUsersWithSameName} groups with name {$userName}";
+        }
+
+        return $userGuid;
     }
 
 

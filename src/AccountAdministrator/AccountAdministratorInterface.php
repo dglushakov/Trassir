@@ -8,10 +8,11 @@ interface AccountAdministratorInterface
 {
     public function getUsers();
     public function createGroup(string $groupName);
-    public function deleteGroup(string $groupName); //TODO запрет пока не пустая
+    public function deleteGroup(string $groupName);
     //public function createUser();
+    public function deleteUser(string $userName);
 
-    //public function deleteUser();
+
 
 
 
