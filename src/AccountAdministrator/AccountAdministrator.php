@@ -81,7 +81,7 @@ class AccountAdministrator implements AccountAdministratorInterface
             return false;
         }
 
-        if(!$this->isGroupEmpty()) {
+        if(!$this->isGroupEmpty($groupName)) {
             return false;
         }
 

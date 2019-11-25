@@ -14,5 +14,8 @@
             "dglushakov\\Trassir\\": "src/",
             "dglushakov\\Trassir\\MediaGrabber\\": "src/Mediagrabber/"
         }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.4"
     }
 }
