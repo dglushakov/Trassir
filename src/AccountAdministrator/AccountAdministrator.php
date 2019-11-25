@@ -39,9 +39,12 @@ class AccountAdministrator implements AccountAdministratorInterface
         $userNameData = $request->execute();
         $userDetails['name'] = $userNameData['value'];
 
-        $request = new TrassirRequest($this->trassirNvr, 'USER_GROUP', ['userGuid' => $userGuid]);
-        $userGroupData = $request->execute();
-        $userDetails ['parentGroupGuid'] = $userGroupData['value'];
+        if($userDetails ['type']=='User') {
+            $request = new TrassirRequest($this->trassirNvr, 'USER_GROUP', ['userGuid' => $userGuid]);
+            $userGroupData = $request->execute();
+            $userDetails ['parentGroupGuid'] = $userGroupData['value'];
+        }
+
         return $userDetails;
     }
 
@@ -85,7 +88,15 @@ class AccountAdministrator implements AccountAdministratorInterface
             return false;
         }
 
-        return false;
+        $groupGuid = $this->getGroupGuidByName($groupName);
+        return $this->deleteUserOrGroup($groupGuid);
+    }
+
+    private function deleteUserOrGroup(string $guid) {
+        $request = new TrassirRequest($this->trassirNvr, 'DELETE_USER', ['userGuid' => $guid]);
+        $result = $request->execute();
+
+        return $result;
     }
 
     private function isGroupExists($groupName)
@@ -116,15 +127,25 @@ class AccountAdministrator implements AccountAdministratorInterface
         return true;
     }
 
-    private function getGroupGuidByName(string $groupName) :?string { //TODO several groups with same names ?
+    private function getGroupGuidByName(string $groupName) :?string {
+        $numberOfGroupsWithSameName = 0;
+        $groupGuid = false;
         $users = $this->getUsers();
         foreach ($users as $user) {
             if ($user['type'] == 'Group' && $user['name'] == $groupName) {
                 $groupGuid = $user['guid'];
-                return $groupGuid;
+                $numberOfGroupsWithSameName++;
             }
+
         }
-        return false;
+
+        if (!$numberOfGroupsWithSameName===1) {
+            $groupGuid = false;
+            $this->lastError = "Nvr have {$numberOfGroupsWithSameName} groups with name {$groupName}";
+        }
+
+        return $groupGuid;
     }
+
 
 }
