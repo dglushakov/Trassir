@@ -11,7 +11,7 @@ class AccountAdministrator implements AccountAdministratorInterface
 {
     private $trassirNvr;
     private $lastError;
-    private $users=[];
+    private $users = [];
 
     /**
      * @return mixed
@@ -26,28 +26,6 @@ class AccountAdministrator implements AccountAdministratorInterface
         $this->trassirNvr = $trassirNvr;
     }
 
-
-    private function getUserDetails(string $userGuid): ?array
-    {
-        $userDetails = [];
-        $userDetails['guid'] = $userGuid;
-
-        $request = new TrassirRequest($this->trassirNvr, 'USER_OR_GROUP', ['userGuid' => $userGuid]);
-        $userGroupData = $request->execute();
-        $userDetails ['type'] = $userGroupData['type'];
-
-        $request = new TrassirRequest($this->trassirNvr, 'USER_NAME', ['userGuid' => $userGuid]);
-        $userNameData = $request->execute();
-        $userDetails['name'] = $userNameData['value'];
-
-        if($userDetails ['type']=='User') {
-            $request = new TrassirRequest($this->trassirNvr, 'USER_GROUP', ['userGuid' => $userGuid]);
-            $userGroupData = $request->execute();
-            $userDetails ['parentGroupGuid'] = $userGroupData['value'];
-        }
-
-        return $userDetails;
-    }
 
     public function getUsers()
     {
@@ -67,6 +45,86 @@ class AccountAdministrator implements AccountAdministratorInterface
         return $this->users;
     }
 
+    private function getUserDetails(string $userGuid): ?array
+    {
+        $userDetails = [];
+        $userDetails['guid'] = $userGuid;
+
+        $request = new TrassirRequest($this->trassirNvr, 'USER_OR_GROUP', ['userGuid' => $userGuid]);
+        $userGroupData = $request->execute();
+        $userDetails ['type'] = $userGroupData['type'];
+
+        $request = new TrassirRequest($this->trassirNvr, 'USER_NAME', ['userGuid' => $userGuid]);
+        $userNameData = $request->execute();
+        $userDetails['name'] = $userNameData['value'];
+
+        if ($userDetails ['type'] == 'User') {
+            $request = new TrassirRequest($this->trassirNvr, 'USER_GROUP', ['userGuid' => $userGuid]);
+            $userGroupData = $request->execute();
+            $userDetails ['parentGroupGuid'] = $userGroupData['value'];
+        }
+
+        return $userDetails;
+    }
+
+    public function createUser(string $userName)
+    {
+
+        if ($this->isUserExists($userName)) {
+            $this->lastError = "User {$userName} already not exist";
+            return false;
+        }
+
+
+        return true;
+//        https://[адрес_сервера]:[порт]/settings/users/user_add/new_user_name=[имя_пользователя]?sid=[id_сессии]
+//        https://[адрес_сервера]:[порт]/settings/users/user_add/new_user_password=[пароль_пользователя]?sid=[id_сессии]
+//        https://[адрес_сервера]:[порт]/settings/users/user_add/create_now=1?sid=[id_сессии]
+        return false;
+    }
+
+    public function deleteUser(string $userName)
+    {
+        if (!$this->isUserExists($userName)) {
+            return false;
+        }
+
+        $userGuid = $this->getUserGuidByName($userName);
+        return $this->deleteUserOrGroup($userGuid);
+    }
+
+    private function isUserExists(string $userName)
+    {
+        $users = $this->getUsers();
+        foreach ($users as $user) {
+            if ($user['type'] == 'User' && $user['name'] == $userName) {
+                return true;
+            }
+        }
+        $this->lastError = "User {$userName} does not exist";
+        return false;
+    }
+
+    private function getUserGuidByName(string $userName): ?string
+    {
+        $numberOfUsersWithSameName = 0;
+        $userGuid = false;
+        $users = $this->getUsers();
+        foreach ($users as $user) {
+            if ($user['type'] == 'User' && $user['name'] == $userName) {
+                $userGuid = $user['guid'];
+                $numberOfUsersWithSameName++;
+            }
+        }
+
+        if (!$numberOfUsersWithSameName === 1) {
+            $userGuid = false;
+            $this->lastError = "Nvr have {$numberOfUsersWithSameName} groups with name {$userName}";
+        }
+
+        return $userGuid;
+    }
+
     public function createGroup(string $groupName)
     {
 
@@ -84,32 +142,13 @@ class AccountAdministrator implements AccountAdministratorInterface
         return true;
     }
 
-    public function deleteUser(string $userName) {
-        if(!$this->isUserExists($userName)) {
+    public function deleteGroup(string $groupName)
+    {
+        if (!$this->isGroupExists($groupName)) {
             return false;
         }
 
-        $userGuid = $this->getUserGuidByName($userName);
-        return $this->deleteUserOrGroup($userGuid);
-    }
-
-    private function isUserExists(string $userName){
-        $users = $this->getUsers();
-        foreach ($users as $user) {
-            if ($user['type'] == 'User' && $user['name'] == $userName) {
-                return true;
-            }
-        }
-        $this->lastError = "User {$userName} does not exist";
-        return false;
-    }
-
-    public function deleteGroup(string $groupName) {
-        if(!$this->isGroupExists($groupName)) {
-            return false;
-        }
-
-        if(!$this->isGroupEmpty($groupName)) {
+        if (!$this->isGroupEmpty($groupName)) {
             return false;
         }
 
@@ -117,7 +156,8 @@ class AccountAdministrator implements AccountAdministratorInterface
         return $this->deleteUserOrGroup($groupGuid);
     }
 
-    private function deleteUserOrGroup(string $guid) {
+    private function deleteUserOrGroup(string $guid)
+    {
         $request = new TrassirRequest($this->trassirNvr, 'DELETE_USER', ['userGuid' => $guid]);
         $result = $request->execute();
 
@@ -137,7 +177,7 @@ class AccountAdministrator implements AccountAdministratorInterface
         return false;
     }
 
-    public function isGroupEmpty($groupName)
+    private function isGroupEmpty($groupName)
     {
         if (!$this->isGroupExists($groupName)) {
             return false;
@@ -153,7 +193,8 @@ class AccountAdministrator implements AccountAdministratorInterface
         return true;
     }
 
-    private function getGroupGuidByName(string $groupName) :?string {
+    private function getGroupGuidByName(string $groupName): ?string
+    {
         $numberOfGroupsWithSameName = 0;
         $groupGuid = false;
         $users = $this->getUsers();
@@ -165,32 +206,12 @@ class AccountAdministrator implements AccountAdministratorInterface
 
         }
 
-        if (!$numberOfGroupsWithSameName===1) {
+        if (!$numberOfGroupsWithSameName === 1) {
             $groupGuid = false;
             $this->lastError = "Nvr have {$numberOfGroupsWithSameName} groups with name {$groupName}";
         }
 
         return $groupGuid;
-    }
-
-
-    private function getUserGuidByName(string $userName) :?string {
-        $numberOfUsersWithSameName = 0;
-        $userGuid = false;
-        $users = $this->getUsers();
-        foreach ($users as $user) {
-            if ($user['type'] == 'User' && $user['name'] == $userName) {
-                $userGuid = $user['guid'];
-                $numberOfUsersWithSameName++;
-            }
-        }
-
-        if (!$numberOfUsersWithSameName===1) {
-            $userGuid = false;
-            $this->lastError = "Nvr have {$numberOfUsersWithSameName} groups with name {$userName}";
-        }
-
-        return $userGuid;
     }
 
 

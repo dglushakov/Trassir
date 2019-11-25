@@ -25,6 +25,9 @@ class TrassirRequest
             'USERS',
             'USER_OR_GROUP',
             'USER_NAME',
+            'CREATE_USER_PREPARE_USERNAME',
+            'CREATE_USER_PREPARE_PASSWORD',
+            'CREATE_USER_EXECUTE',
             'CREATE_GROUP_PREPARE',
             'CREATE_GROUP_EXECUTE',
 
