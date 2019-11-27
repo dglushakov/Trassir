@@ -16,6 +16,7 @@ Interface TrassirNvrInterface {
     public function getNvrHealth(): ?array;
     public function getChannels(): ?array;
     public function getUsers(): ?array;
+    public function createGroup(string $groupName);
     public function createUser(string $userName, string $userPassword);
     public function deleteUser(string $userName);
 
