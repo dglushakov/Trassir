@@ -2,6 +2,8 @@
 
 namespace dglushakov\Trassir\TrassirNvr;
 
+use dglushakov\Trassir\NvrRequest\NvrRequestController;
+
 class TrassirNVR implements TrassirNvrInterface
 
 {
@@ -17,28 +19,9 @@ class TrassirNVR implements TrassirNvrInterface
         $stream_context,
         $lastError;
 
-    public function getIp()
-    {
-        return $this->ip;
-    }
+    private $requestController;
+    private $users = [];
 
-    public function getSid()
-    {
-        return $this->sid;
-    }
-
-    public function getStreamContext()
-    {
-        return $this->stream_context;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getLastError()
-    {
-        return $this->lastError;
-    }
 
     /**
      * TrassirNVR constructor.
@@ -68,8 +51,48 @@ class TrassirNVR implements TrassirNvrInterface
             'verify_peer_name' => false,
             'allow_self_signed' => true,
             'verify_depth' => 0]]);
+
+        $this->requestController = new NvrRequestController($this);
+        $this->login();
     }
 
+    public function getIp()
+    {
+        return $this->ip;
+    }
+
+    public function getUserName()
+    {
+        return $this->userName;
+    }
+
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
+    public function getPasswordSDK()
+    {
+        return $this->passwordSDK;
+    }
+
+    public function getSid()
+    {
+        return $this->sid;
+    }
+
+    public function getStreamContext()
+    {
+        return $this->stream_context;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLastError()
+    {
+        return $this->lastError;
+    }
 
     private function sidIsValid()
     {
@@ -99,33 +122,13 @@ class TrassirNVR implements TrassirNvrInterface
 
         $this->sid = false;
         $this->sidSDK = false;
-
-        $sidRequestUrl = 'https://' . trim($this->ip) . ':8080/login?username=' . trim($this->userName) . '&password=' . trim($this->password);
-        if (false === ($responseJson_str = @file_get_contents($sidRequestUrl, NULL, $this->stream_context))) {
-            $this->lastError = "Host " . $this->ip . " is offline";
-            return false;
-        }
-        $server_auth = json_decode($responseJson_str, true);
-        if ($server_auth['success'] == 1) {
-            $this->sid = $server_auth['sid'];
+        $this->sid = $this->requestController->getSid();
+        if ($this->sid) {
             $this->sidExpiresAt = new \DateTime();
-            $this->sidExpiresAt->modify('+15 minutes');
-        } else {
-            $this->lastError = "Wrong Username or Password. Cant get sid";
         }
-
-        $sidSdkRequestUrl = 'https://' . trim($this->ip) . ':8080/login?password=' . trim($this->passwordSDK);
-        if (false === ($responseJson_str = @file_get_contents($sidSdkRequestUrl, NULL, $this->stream_context))) {
-            $this->lastError = "Host " . $this->ip . " is offline";
-            return false;
-        }
-        $server_auth = json_decode($responseJson_str, true);
-        if ($server_auth['success'] == 1) {
-            $this->sidSDK = $server_auth['sid'];
+        $this->sidSDK = $this->requestController->getSidSDK();
+        if ($this->sidSDK) {
             $this->sidSDKExpiresAt = new \DateTime();
-            $this->sidSDKExpiresAt->modify('+15 minutes');
-        } else {
-            $this->lastError = "Wrong Username or Password. Cant get SDK password";
         }
 
         if ($this->sid != false && $this->sidSDK != false) {
@@ -159,30 +162,53 @@ class TrassirNVR implements TrassirNvrInterface
 
     public function getObjectsTree(): ?array
     {
-        $request = new TrassirRequest($this, 'OBJECTS_TREE');
-        return $request->execute();
+        return $this->requestController->getObjectsTree();
     }
 
     public function getNvrHealth(): ?array
     {
-        $request = new TrassirRequest($this, 'HEALTH');
-        return $request->execute();
+        return $this->requestController->getHealth();
     }
 
     public function getChannels(): ?array
     {
-        $request = new TrassirRequest($this, 'CHANNELS_LIST');
-        $result = $request->execute();
-        $channels = $result['channels'];
-        return $channels;
+        return $this->requestController->getChannels();
     }
 
-    public function getServerSettings(): ?array
+    public function getUsers(): ?array
     {
-        $request = new TrassirRequest($this, 'SERVER_SETTINGS');
-        return $request->execute();
+        if (empty($this->users)) {
+            $this->users = $this->requestController->getUsers();
+        }
+        return $this->users;
     }
 
+    public function createUser(string $username, string $userPassword)
+    {
+        try {
+            return $this->requestController->createUser($username, $userPassword);
+        } catch (\Exception $e) {
+            echo 'Выброшено исключение: ', $e->getMessage(), "\n";
+        }
+    }
 
+    public function createGroup(string $groupName)
+    {
+        try {
+            return $this->requestController->createGroup($groupName);
+        } catch (\Exception $e) {
+            echo 'Выброшено исключение: ', $e->getMessage(), "\n";
+        }
 
+    }
+
+    public function deleteUser(string $userName)
+    {
+        try {
+            return $this->requestController->deleteUser($userName);
+        } catch (\Exception $e) {
+            echo 'Выброшено исключение: ', $e->getMessage(), "\n";
+        }
+
+    }
 }
