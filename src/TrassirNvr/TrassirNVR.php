@@ -200,6 +200,10 @@ class TrassirNVR implements TrassirNvrInterface
         } catch (\Exception $e) {
             echo 'Выброшено исключение: ', $e->getMessage(), "\n";
         }
+    }
 
+    public function getScreenshot(string $channelGuid, \DateTime $timestamp)
+    {
+        return $this->requestController->getScreenshot($channelGuid, $timestamp);
     }
 }

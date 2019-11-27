@@ -111,6 +111,12 @@ class NvrRequestController
         return $this->urlPrefix . "/settings/users/user_add/delete_user_id={$guid}?sid={$this->trassirNvr->getSidSDK()}";
     }
 
+    private function generateScreenshotUrl(string $channelGuid,\DateTime $timestamp)
+    {
+        $timestamp = $timestamp->getTimestamp();
+        return $this->urlPrefix . "/screenshot/{$channelGuid}?timestamp={$timestamp}&sid={$this->trassirNvr->getSid()}";
+    }
+
 
     public function getSid()
     {
@@ -240,5 +246,10 @@ class NvrRequestController
             }
         }
         return $guid;
+    }
+
+    public function getScreenshot(string $channelGuid, \DateTime $timestamp) { // TODO откуда клиент берет гуид? может ли быть одинковое имя каналов?
+
+        return $this->generateScreenshotUrl($channelGuid, $timestamp);
     }
 }
