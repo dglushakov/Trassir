@@ -16,8 +16,7 @@ class TrassirNVR implements TrassirNvrInterface
         $sidSDK,
         $sidExpiresAt,
         $sidSDKExpiresAt,
-        $stream_context,
-        $lastError;
+        $stream_context;
 
     private $requestController;
     private $users = [];
@@ -84,14 +83,6 @@ class TrassirNVR implements TrassirNvrInterface
     public function getStreamContext()
     {
         return $this->stream_context;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getLastError()
-    {
-        return $this->lastError;
     }
 
     private function sidIsValid()
