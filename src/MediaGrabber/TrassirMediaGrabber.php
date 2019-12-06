@@ -38,7 +38,6 @@ class TrassirMediaGrabber implements MediaGrabberInterface
     }
 
     private static function getVideoToken(TrassirNvrInterface $trassirNvr, $channelNumber=0, \DateTime $timestamp = null) {
-        $token = false;
 
         $channels = $trassirNvr->getChannels();
         $tokenUrl = 'https://' . trim($trassirNvr->getIp()) . ':8080/get_video?channel='
@@ -56,6 +55,7 @@ class TrassirMediaGrabber implements MediaGrabberInterface
         }
         $token = json_decode($responseJson_str, true);
         return $token['token'];
+
     }
 
 }

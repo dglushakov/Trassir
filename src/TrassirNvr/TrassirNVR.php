@@ -128,7 +128,7 @@ class TrassirNVR implements TrassirNvrInterface
 
         return $result;
     }
-    
+
 
     /**
      * @return mixed
