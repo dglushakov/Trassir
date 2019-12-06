@@ -128,20 +128,7 @@ class TrassirNVR implements TrassirNvrInterface
 
         return $result;
     }
-
-    private function isHostOnline(): bool
-    {
-        $online = false;
-        $url = 'http://' . trim($this->ip) . ':80';
-        $data = @file_get_contents($url, NULL, $this->stream_context);
-        if (!$data) {
-            $this->lastError = "Host " . $this->ip . " is offline";
-        } else {
-            $online = true;
-        }
-
-        return $online;
-    }
+    
 
     /**
      * @return mixed

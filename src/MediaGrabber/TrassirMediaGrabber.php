@@ -32,11 +32,9 @@ class TrassirMediaGrabber implements MediaGrabberInterface
 
     public static function getVideoStreamUrl(TrassirNvrInterface $trassirNvr, $channelNumber=0, \DateTime $timestamp = null){
         $videoToken = self::getVideoToken($trassirNvr, $channelNumber, $timestamp);
-
         $videoStreamUrl = 'http://' . trim($trassirNvr->getIp()) . ':555/'.$videoToken;
 
         return  $videoStreamUrl;
-
     }
 
     private static function getVideoToken(TrassirNvrInterface $trassirNvr, $channelNumber=0, \DateTime $timestamp = null) {
