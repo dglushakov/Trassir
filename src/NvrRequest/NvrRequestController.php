@@ -161,12 +161,11 @@ class NvrRequestController
 
     public function getUsers()
     {
-
         $users = [];
         $guidesRequestUrl = $this->generateUserGuidesUrl();
         $userGuides = $this->executeRequest($guidesRequestUrl);
 
-        foreach ($userGuides['subdirs'] as $guid) { //TODO если гуидов нет ошибка
+        foreach ($userGuides['subdirs'] as $guid) {
             $detailsRequestUrl = $this->generateUserDetailsUrl($guid);
             $namesRequestUrl = $this->generateUserNameUrl($guid);
             $groupRequestUrl = $this->generateUseGroupUrl($guid);
@@ -211,7 +210,7 @@ class NvrRequestController
         return $this->executeRequest($requestExecuteUrl);
     }
 
-    public function deleteUser(string $userName) //TODO if its a group and not empty throw exception
+    public function deleteUser(string $userName)
     {
         $existingUsers = $this->trassirNvr->getUsers();
         foreach ($existingUsers as $user) {
@@ -248,7 +247,7 @@ class NvrRequestController
         return $guid;
     }
 
-    public function getScreenshot(string $channelGuid, \DateTime $timestamp) { // TODO откуда клиент берет гуид? может ли быть одинковое имя каналов?
+    public function getScreenshot(string $channelGuid, \DateTime $timestamp) {
 
         return $this->generateScreenshotUrl($channelGuid, $timestamp);
     }

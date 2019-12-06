@@ -180,7 +180,7 @@ class TrassirNVR implements TrassirNvrInterface
 
     }
 
-    public function deleteUser(string $userName)
+    public function deleteUserOrGroup(string $userName)
     {
         try {
             return $this->requestController->deleteUser($userName);
