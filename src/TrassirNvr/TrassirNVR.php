@@ -198,17 +198,10 @@ class TrassirNVR implements TrassirNvrInterface
         }
     }
 
-
     public function getScreenshot(string $channelGuid, \DateTime $timestamp)
     {
         return $this->nvrRequest->getScreenshot($channelGuid, $timestamp);
     }
-
-//    public function getVideoUrl(string $channelGuid, $container="mjpeg", $quality=80, $stream="main", $framerate=1000)
-//    {
-//
-//        return $this->nvrRequest->getVideoToken($channelGuid);
-//    }
 
     public function getNetworkInterfaces(){
         $networkInterfaceSettings=[];
@@ -220,6 +213,28 @@ class TrassirNVR implements TrassirNvrInterface
 
 
         return $networkInterfaceSettings;
+    }
+
+    public function getHddInfo(){
+        $hddInfo =[];
+        $hddList = $this->nvrRequest->getHddList();
+        $hddList = $hddList['subdirs'];
+
+        foreach ($hddList as $hddName) {
+            $hddInfo[$hddName] = $this->nvrRequest->getHddInfo($hddName);
+        }
+        return $hddInfo;
+    }
+
+    public function getCamerasInfo(){
+        $camerasInfo =[];
+        $camerasList = $this->nvrRequest->getCamerasList();
+        $camerasList = $camerasList['subdirs'];
+
+        foreach ($camerasList as $guid) {
+            $camerasInfo[$guid] = $this->nvrRequest->getCameraInfo($guid);
+        }
+        return $camerasInfo;
     }
 
 }

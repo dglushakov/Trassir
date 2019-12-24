@@ -204,4 +204,46 @@ class NvrRequest
         return $settings;
     }
 
+    public function getHddList(){
+        $hddUrl = $this->requestUrlGenerator->getArchiveSettingsUrl();
+        return  $this->executeRequest($hddUrl);
+    }
+
+    public function getHddInfo(string $hddName){
+        $hddInfo =[];
+        $hddInfo['name'] = $hddName;
+
+        $hddModelUrl = $this->requestUrlGenerator->getHddModelUrl($hddName);
+        $hddInfo['model'] = $this->executeRequest($hddModelUrl)['value'];
+
+        $hddSerialUrl = $this->requestUrlGenerator->getHddSerialUrl($hddName);
+        $hddInfo['serial'] = $this->executeRequest($hddSerialUrl)['value'];
+
+        $hddCapacity = $this->requestUrlGenerator->getHddCapacityGb($hddName);
+        $hddInfo['capacity'] = $this->executeRequest($hddCapacity)['value'];
+
+        return  $hddInfo;
+    }
+
+    public function getCamerasList(){
+        $camerasUrl = $this->requestUrlGenerator->getCamerasSettingsUrl();
+        return  $this->executeRequest($camerasUrl);
+    }
+
+    public function getCameraInfo(string $guid){
+        $cameraInfo =[];
+        $cameraInfo['guid'] = $guid;
+
+        $modelUrl = $this->requestUrlGenerator->getCameraModelUrl($guid);
+        $cameraInfo['model'] = $this->executeRequest($modelUrl)['value'];
+
+        $nameUrl = $this->requestUrlGenerator->getCameraNameUrl($guid);
+        $cameraInfo['name'] = $this->executeRequest($nameUrl)['value'];
+
+        $ipAddressUrl = $this->requestUrlGenerator->getCameraIplUrl($guid);
+        $cameraInfo['ip'] = $this->executeRequest($ipAddressUrl)['value'];
+
+        return  $cameraInfo;
+    }
+
 }

@@ -107,9 +107,46 @@ class RequestUrlGenerator
         return $this->url . "/settings/network_interfaces/?sid={$this->trassirNvr->getSidSDK()}";
     }
 
-
     public function getNetworkInterfaceSettings(string $interfaceName, string $settingName)
     {
         return $this->url . "/settings/network_interfaces/{$interfaceName}/{$settingName}?sid={$this->trassirNvr->getSidSDK()}";
+    }
+
+    public function getArchiveSettingsUrl()
+    {
+        return $this->url . "/settings/archive/?sid={$this->trassirNvr->getSidSDK()}";
+    }
+
+    public function getHddModelUrl($hddName)
+    {
+        return $this->url . "/settings/archive/$hddName/model?sid={$this->trassirNvr->getSidSDK()}";
+    }
+
+    public function getHddSerialUrl($hddName)
+    {
+        return $this->url . "/settings/archive/$hddName/serial?sid={$this->trassirNvr->getSidSDK()}";
+    }
+
+    public function getHddCapacityGb($hddName)
+    {
+        return $this->url . "/settings/archive/$hddName/capacity_gb?sid={$this->trassirNvr->getSidSDK()}";
+    }
+
+    public function getCamerasSettingsUrl()
+    {
+        return $this->url . "/settings/ip_cameras/?sid={$this->trassirNvr->getSidSDK()}";
+    }
+
+    public function getCameraModelUrl(string $guid)
+    {
+        return $this->url . "/settings/ip_cameras/{$guid}/model?sid={$this->trassirNvr->getSidSDK()}";
+    }
+    public function getCameraNameUrl(string $guid)
+    {
+        return $this->url . "/settings/ip_cameras/{$guid}/name?sid={$this->trassirNvr->getSidSDK()}";
+    }
+    public function getCameraIplUrl(string $guid)
+    {
+        return $this->url . "/settings/ip_cameras/{$guid}/connection_ip?sid={$this->trassirNvr->getSidSDK()}";
     }
 }
