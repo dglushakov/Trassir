@@ -17,8 +17,9 @@ Interface TrassirNvrInterface {
     public function getChannels(): ?array;
     public function getUsers(): ?array;
     public function createGroup(string $groupName);
+    public function deleteGroup(string $groupName);
     public function createUser(string $userName, string $userPassword);
-    public function deleteUserOrGroup(string $userName);
+    public function deleteUser(string $userName);
     public function getScreenshot(string $channelGuid, \DateTime $timestamp);
 
     //getVideuUrl(container? )

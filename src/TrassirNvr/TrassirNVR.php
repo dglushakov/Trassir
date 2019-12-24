@@ -2,7 +2,7 @@
 
 namespace dglushakov\Trassir\TrassirNvr;
 
-use dglushakov\Trassir\NvrRequest\NvrRequestController;
+use dglushakov\Trassir\NvrRequest\NvrRequest;
 
 class TrassirNVR implements TrassirNvrInterface
 
@@ -18,7 +18,7 @@ class TrassirNVR implements TrassirNvrInterface
         $sidSDKExpiresAt,
         $stream_context;
 
-    private $requestController;
+    private $nvrRequest;
     private $users = [];
 
 
@@ -51,7 +51,7 @@ class TrassirNVR implements TrassirNvrInterface
             'allow_self_signed' => true,
             'verify_depth' => 0]]);
 
-        $this->requestController = new NvrRequestController($this);
+        $this->nvrRequest = new NvrRequest($this);
         $this->login();
     }
 
@@ -113,11 +113,11 @@ class TrassirNVR implements TrassirNvrInterface
 
         $this->sid = false;
         $this->sidSDK = false;
-        $this->sid = $this->requestController->getSid();
+        $this->sid = $this->nvrRequest->getSid();
         if ($this->sid) {
             $this->sidExpiresAt = new \DateTime();
         }
-        $this->sidSDK = $this->requestController->getSidSDK();
+        $this->sidSDK = $this->nvrRequest->getSidSDK();
         if ($this->sidSDK) {
             $this->sidSDKExpiresAt = new \DateTime();
         }
@@ -140,23 +140,23 @@ class TrassirNVR implements TrassirNvrInterface
 
     public function getObjectsTree(): ?array
     {
-        return $this->requestController->getObjectsTree();
+        return $this->nvrRequest->getObjectsTree();
     }
 
     public function getNvrHealth(): ?array
     {
-        return $this->requestController->getHealth();
+        return $this->nvrRequest->getHealth();
     }
 
     public function getChannels(): ?array
     {
-        return $this->requestController->getChannels();
+        return $this->nvrRequest->getChannels();
     }
 
     public function getUsers(): ?array
     {
         if (empty($this->users)) {
-            $this->users = $this->requestController->getUsers();
+            $this->users = $this->nvrRequest->getUsers();
         }
         return $this->users;
     }
@@ -164,7 +164,7 @@ class TrassirNVR implements TrassirNvrInterface
     public function createUser(string $username, string $userPassword)
     {
         try {
-            return $this->requestController->createUser($username, $userPassword);
+            return $this->nvrRequest->createUser($username, $userPassword);
         } catch (\Exception $e) {
             echo 'Выброшено исключение: ', $e->getMessage(), "\n";
         }
@@ -173,24 +173,53 @@ class TrassirNVR implements TrassirNvrInterface
     public function createGroup(string $groupName)
     {
         try {
-            return $this->requestController->createGroup($groupName);
+            return $this->nvrRequest->createGroup($groupName);
         } catch (\Exception $e) {
             echo 'Выброшено исключение: ', $e->getMessage(), "\n";
         }
 
     }
 
-    public function deleteUserOrGroup(string $userName)
+    public function deleteGroup(string $groupName)
     {
         try {
-            return $this->requestController->deleteUser($userName);
+            return $this->nvrRequest->deleteUser($groupName);
         } catch (\Exception $e) {
             echo 'Выброшено исключение: ', $e->getMessage(), "\n";
         }
     }
+
+    public function deleteUser(string $userName)
+    {
+        try {
+            return $this->nvrRequest->deleteUser($userName);
+        } catch (\Exception $e) {
+            echo 'Выброшено исключение: ', $e->getMessage(), "\n";
+        }
+    }
+
 
     public function getScreenshot(string $channelGuid, \DateTime $timestamp)
     {
-        return $this->requestController->getScreenshot($channelGuid, $timestamp);
+        return $this->nvrRequest->getScreenshot($channelGuid, $timestamp);
     }
+
+    public function getVideoUrl(string $channelGuid, $container="mjpeg", $quality=80, $stream="main", $framerate=1000)
+    {
+        //https://192.168.1.200:8080/get_video?channel=CKq5LLiO&container=mjpeg&quality=80&stream=main&framerate=1000&sid
+        return $this->nvrRequest->getVideoToken($channelGuid);
+    }
+
+    public function getNetworkInterfaces(){
+        $networkInterfaceSettings=[];
+        $interfaces = $this->nvrRequest->getNetworkInterfaces();
+
+        foreach ($interfaces as $interface) {
+            $networkInterfaceSettings[$interface] =  $this->nvrRequest->getNetworkInterfaceSettings($interface);
+        }
+
+
+        return $networkInterfaceSettings;
+    }
+
 }

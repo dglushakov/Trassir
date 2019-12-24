@@ -12,8 +12,7 @@
     },
     "autoload": {
         "psr-4": {
-            "dglushakov\\Trassir\\": "src/",
-            "dglushakov\\Trassir\\MediaGrabber\\": "src/Mediagrabber/"
+            "dglushakov\\Trassir\\": "src/"
         }
     },
     "require-dev": {
