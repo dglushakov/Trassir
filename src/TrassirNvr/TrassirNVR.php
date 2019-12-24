@@ -204,11 +204,11 @@ class TrassirNVR implements TrassirNvrInterface
         return $this->nvrRequest->getScreenshot($channelGuid, $timestamp);
     }
 
-    public function getVideoUrl(string $channelGuid, $container="mjpeg", $quality=80, $stream="main", $framerate=1000)
-    {
-        //https://192.168.1.200:8080/get_video?channel=CKq5LLiO&container=mjpeg&quality=80&stream=main&framerate=1000&sid
-        return $this->nvrRequest->getVideoToken($channelGuid);
-    }
+//    public function getVideoUrl(string $channelGuid, $container="mjpeg", $quality=80, $stream="main", $framerate=1000)
+//    {
+//
+//        return $this->nvrRequest->getVideoToken($channelGuid);
+//    }
 
     public function getNetworkInterfaces(){
         $networkInterfaceSettings=[];
