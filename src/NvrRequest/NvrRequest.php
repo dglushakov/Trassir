@@ -96,6 +96,31 @@ class NvrRequest
         return $users;
     }
 
+    public function getUserNames() {
+        $userNames = [];
+        $serviceUsers=[
+            'Admin',
+            'Operator',
+            'Script',
+            'Monitoring'
+        ];
+        $guidesRequestUrl = $this->requestUrlGenerator->getUserGuidesUrl();
+        $userGuides = $this->executeRequest($guidesRequestUrl);
+
+        foreach ($userGuides['subdirs'] as $guid) {
+            $detailsRequestUrl = $this->requestUrlGenerator->getUserDetailsUrl($guid);
+            $namesRequestUrl = $this->requestUrlGenerator->getUserNameUrl($guid);
+
+            $details = $this->executeRequest($detailsRequestUrl);
+            $name = $this->executeRequest($namesRequestUrl);
+            if ($details['type'] == 'User' && !in_array($name['value'], $serviceUsers)) {
+                $userNames[]=$name['value'];
+            }
+        }
+        return $userNames;
+    }
+
+
 
     public function createGroup(string $groupName)
     {

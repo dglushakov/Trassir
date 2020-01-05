@@ -161,6 +161,10 @@ class TrassirNVR implements TrassirNvrInterface
         return $this->users;
     }
 
+    public function getUserNames(){
+        return $this->nvrRequest->getUserNames();
+    }
+
     public function createUser(string $username, string $userPassword)
     {
         try {
