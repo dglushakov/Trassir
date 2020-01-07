@@ -153,6 +153,11 @@ class TrassirNVR implements TrassirNvrInterface
         return $this->nvrRequest->getChannels();
     }
 
+    public function getChannelSignalStatus($channelGuid)
+    {
+        return $this->nvrRequest->getChannelSignalStatus($channelGuid);
+    }
+
     public function getUsers(): ?array
     {
         if (empty($this->users)) {

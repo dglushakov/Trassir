@@ -41,6 +41,12 @@ class RequestUrlGenerator
     {
         return $this->url . "/channels?sid={$this->trassirNvr->getSid()}";
     }
+
+    public function getChannelSignalStatus(string $channelGuid)
+    {
+        return $this->url . "/settings/channels/{$channelGuid}/flags/signal?sid={$this->trassirNvr->getSid()}";
+    }
+
     public function getUserGuidesUrl()
     {
         return $this->url . "/settings/users/?sid={$this->trassirNvr->getSid()}";

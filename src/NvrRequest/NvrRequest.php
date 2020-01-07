@@ -71,6 +71,10 @@ class NvrRequest
         return $this->executeRequest($this->requestUrlGenerator->getChannelsUrl());
     }
 
+    public function getChannelSignalStatus($channelGuid)
+    {
+        return $this->executeRequest($this->requestUrlGenerator->getChannelSignalStatus($channelGuid));
+    }
 
     public function getUsers()
     {
