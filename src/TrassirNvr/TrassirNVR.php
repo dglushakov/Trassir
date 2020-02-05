@@ -45,11 +45,16 @@ class TrassirNVR implements TrassirNvrInterface
         $this->userName = $userName;
         $this->password = $password;
         $this->passwordSDK = $passwordSDK;
-        $this->stream_context = stream_context_create(['ssl' => [  //разрешаем принимать самоподписанные сертификаты от NVR
-            'verify_peer' => false,
-            'verify_peer_name' => false,
-            'allow_self_signed' => true,
-            'verify_depth' => 0]]);
+        $this->stream_context = stream_context_create(
+            ['ssl' => [  //разрешаем принимать самоподписанные сертификаты от NVR
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true,
+                'verify_depth' => 0],
+            'http'=> [
+                'timeout' => 2, //ограничение 2с на попытку file_get_contents
+            ]
+            ]);
 
         $this->nvrRequest = new NvrRequest($this);
         $this->login();
@@ -166,7 +171,8 @@ class TrassirNVR implements TrassirNvrInterface
         return $this->users;
     }
 
-    public function getUserNames(){
+    public function getUserNames()
+    {
         return $this->nvrRequest->getUserNames();
     }
 
@@ -212,20 +218,22 @@ class TrassirNVR implements TrassirNvrInterface
         return $this->nvrRequest->getScreenshot($channelGuid, $timestamp);
     }
 
-    public function getNetworkInterfaces(){
-        $networkInterfaceSettings=[];
+    public function getNetworkInterfaces()
+    {
+        $networkInterfaceSettings = [];
         $interfaces = $this->nvrRequest->getNetworkInterfaces();
 
         foreach ($interfaces as $interface) {
-            $networkInterfaceSettings[$interface] =  $this->nvrRequest->getNetworkInterfaceSettings($interface);
+            $networkInterfaceSettings[$interface] = $this->nvrRequest->getNetworkInterfaceSettings($interface);
         }
 
 
         return $networkInterfaceSettings;
     }
 
-    public function getHddInfo(){
-        $hddInfo =[];
+    public function getHddInfo()
+    {
+        $hddInfo = [];
         $hddList = $this->nvrRequest->getHddList();
         $hddList = $hddList['subdirs'];
 
@@ -235,8 +243,9 @@ class TrassirNVR implements TrassirNvrInterface
         return $hddInfo;
     }
 
-    public function getCamerasInfo(){
-        $camerasInfo =[];
+    public function getCamerasInfo()
+    {
+        $camerasInfo = [];
         $camerasList = $this->nvrRequest->getCamerasList();
         $camerasList = $camerasList['subdirs'];
 

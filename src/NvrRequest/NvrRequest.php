@@ -24,15 +24,19 @@ class NvrRequest
 
     private function executeRequest(string $requestUrl)
     {
+
         $responseJson_str = @file_get_contents($requestUrl, null, $this->trassirNvr->getStreamContext());//TODO переделать nvr->login и перенести исключения туда if (!$responseJson_str)
 
-        $comment_position = strripos($responseJson_str, '/*');    //отрезаем комментарий в конце ответа сервера
-        if (!$comment_position) {
-            $comment_position = strlen($responseJson_str);
+        if ($responseJson_str) {
+            $comment_position = strripos($responseJson_str, '/*');    //отрезаем комментарий в конце ответа сервера
+            if (!$comment_position) {
+                $comment_position = strlen($responseJson_str);
+            }
+            $responseJson_str = substr($responseJson_str, 0, $comment_position);
+            $responseJson_str = json_decode($responseJson_str, true);
+        } else {
+            $responseJson_str = ['result' => 'false'];
         }
-        $responseJson_str = substr($responseJson_str, 0, $comment_position);
-        $responseJson_str = json_decode($responseJson_str, true);
-
         return $responseJson_str;
     }
 
@@ -100,9 +104,10 @@ class NvrRequest
         return $users;
     }
 
-    public function getUserNames() {
+    public function getUserNames()
+    {
         $userNames = [];
-        $serviceUsers=[
+        $serviceUsers = [
             'Admin',
             'Operator',
             'Script',
@@ -111,19 +116,22 @@ class NvrRequest
         $guidesRequestUrl = $this->requestUrlGenerator->getUserGuidesUrl();
         $userGuides = $this->executeRequest($guidesRequestUrl);
 
-        foreach ($userGuides['subdirs'] as $guid) {
-            $detailsRequestUrl = $this->requestUrlGenerator->getUserDetailsUrl($guid);
-            $namesRequestUrl = $this->requestUrlGenerator->getUserNameUrl($guid);
+        if (isset($userGuides['subdirs'])) {
 
-            $details = $this->executeRequest($detailsRequestUrl);
-            $name = $this->executeRequest($namesRequestUrl);
-            if ($details['type'] == 'User' && !in_array($name['value'], $serviceUsers)) {
-                $userNames[]=$name['value'];
+
+            foreach ($userGuides['subdirs'] as $guid) {
+                $detailsRequestUrl = $this->requestUrlGenerator->getUserDetailsUrl($guid);
+                $namesRequestUrl = $this->requestUrlGenerator->getUserNameUrl($guid);
+
+                $details = $this->executeRequest($detailsRequestUrl);
+                $name = $this->executeRequest($namesRequestUrl);
+                if ($details['type'] == 'User' && !in_array($name['value'], $serviceUsers)) {
+                    $userNames[] = $name['value'];
+                }
             }
         }
         return $userNames;
     }
-
 
 
     public function createGroup(string $groupName)
@@ -154,7 +162,7 @@ class NvrRequest
 
     public function deleteUser(string $userName)
     {
-        $userGuid=$this->getUserGuidByName($userName);
+        $userGuid = $this->getUserGuidByName($userName);
         $requestUrl = $this->requestUrlGenerator->getDeleteUserUrl($userGuid);
         return $this->executeRequest($requestUrl);
     }
@@ -167,7 +175,7 @@ class NvrRequest
                 throw new \Exception("Group {$groupName} is not empty.");
             }
         }
-        $userGuid=$this->getUserGuidByName($groupName);
+        $userGuid = $this->getUserGuidByName($groupName);
         $requestUrl = $this->requestUrlGenerator->getDeleteUserUrl($userGuid);
         return $this->executeRequest($requestUrl);
     }
@@ -196,14 +204,16 @@ class NvrRequest
         return $guid;
     }
 
-    public function getScreenshot(string $channelGuid, \DateTime $timestamp) {
+    public function getScreenshot(string $channelGuid, \DateTime $timestamp)
+    {
 
         return $this->requestUrlGenerator->getScreenshotUrl($channelGuid, $timestamp);
     }
 
-    public function getVideoToken($channelGuid){
+    public function getVideoToken($channelGuid)
+    {
         $tokenUrl = $this->requestUrlGenerator->getVideoTokenUrl($channelGuid);
-        $token =$this->executeRequest($tokenUrl);
+        $token = $this->executeRequest($tokenUrl);
         return $token['token'];
     }
 
@@ -212,34 +222,37 @@ class NvrRequest
         $interfaces = $this->executeRequest($this->requestUrlGenerator->getNetworkInterfacesUrl());
         return $interfaces['subdirs'];
     }
+
     public function getNetworkInterfaceSettings($interfaceName): ?array
     {
-       $settings =[];
-       $settingNames = [
-           "dns2",
-           "dns1",
-           "routes",
-           "gateway",
-           "netmask",
-           "ip",
-           "dhcp",
-           "enabled"
-       ];
-       foreach ($settingNames as $settingName) {
-           $requestUrl = $this->requestUrlGenerator->getNetworkInterfaceSettings($interfaceName, $settingName);
-           $setting = $this->executeRequest($requestUrl);
-           $settings[$settingName] = $setting['value'];
-       }
+        $settings = [];
+        $settingNames = [
+            "dns2",
+            "dns1",
+            "routes",
+            "gateway",
+            "netmask",
+            "ip",
+            "dhcp",
+            "enabled"
+        ];
+        foreach ($settingNames as $settingName) {
+            $requestUrl = $this->requestUrlGenerator->getNetworkInterfaceSettings($interfaceName, $settingName);
+            $setting = $this->executeRequest($requestUrl);
+            $settings[$settingName] = $setting['value'];
+        }
         return $settings;
     }
 
-    public function getHddList(){
+    public function getHddList()
+    {
         $hddUrl = $this->requestUrlGenerator->getArchiveSettingsUrl();
-        return  $this->executeRequest($hddUrl);
+        return $this->executeRequest($hddUrl);
     }
 
-    public function getHddInfo(string $hddName){
-        $hddInfo =[];
+    public function getHddInfo(string $hddName)
+    {
+        $hddInfo = [];
         $hddInfo['name'] = $hddName;
 
         $hddModelUrl = $this->requestUrlGenerator->getHddModelUrl($hddName);
@@ -251,16 +264,18 @@ class NvrRequest
         $hddCapacity = $this->requestUrlGenerator->getHddCapacityGb($hddName);
         $hddInfo['capacity'] = $this->executeRequest($hddCapacity)['value'];
 
-        return  $hddInfo;
+        return $hddInfo;
     }
 
-    public function getCamerasList(){
+    public function getCamerasList()
+    {
         $camerasUrl = $this->requestUrlGenerator->getCamerasSettingsUrl();
-        return  $this->executeRequest($camerasUrl);
+        return $this->executeRequest($camerasUrl);
     }
 
-    public function getCameraInfo(string $guid){
-        $cameraInfo =[];
+    public function getCameraInfo(string $guid)
+    {
+        $cameraInfo = [];
         $cameraInfo['guid'] = $guid;
 
         $modelUrl = $this->requestUrlGenerator->getCameraModelUrl($guid);
@@ -272,7 +287,7 @@ class NvrRequest
         $ipAddressUrl = $this->requestUrlGenerator->getCameraIplUrl($guid);
         $cameraInfo['ip'] = $this->executeRequest($ipAddressUrl)['value'];
 
-        return  $cameraInfo;
+        return $cameraInfo;
     }
 
 }
